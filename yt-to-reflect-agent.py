@@ -32,7 +32,7 @@ def main(youtube_url):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        youtube_url = input("Please enter the YouTube URL: ")
+        youtube_url = input("(AGENT) Please enter the YouTube URL: ")
     else:
         youtube_url = sys.argv[1]
     main(youtube_url)
