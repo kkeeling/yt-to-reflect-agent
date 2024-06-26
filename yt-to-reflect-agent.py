@@ -31,9 +31,8 @@ def main(youtube_url):
     download_youtube_video(youtube_url)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Usage: python yt-to-reflect-agent.py <youtube_url>")
-        sys.exit(1)
-
-    youtube_url = sys.argv[1]
+    if len(sys.argv) != 2:
+        youtube_url = input("Please enter the YouTube URL: ")
+    else:
+        youtube_url = sys.argv[1]
     main(youtube_url)
