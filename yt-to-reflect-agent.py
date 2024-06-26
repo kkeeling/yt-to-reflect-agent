@@ -68,11 +68,16 @@ def transcribe_audio(filepath):
 
         transcription = ""
         for i, chunk in enumerate(chunks):
-            file_obj = io.BytesIO(chunk.export(format="mp3").read())
-            file_obj.name = f"audio_chunk_{i}.mp3"
+            try:
+                agent_output(f"(AGENT) -> Transcribing chunk {i + 1} of {len(chunks)}")
+                file_obj = io.BytesIO(chunk.export(format="mp3").read())
+                file_obj.name = f"audio_chunk_{i}.mp3"
 
-            response = openai.Audio.transcribe("whisper-1", file_obj)
-            transcription += response['text'] + " "
+                response = openai.Audio.transcribe("whisper-1", file_obj)
+                transcription += response['text'] + " "
+            except Exception as e:
+                error_output(f"(AGENT) -> Error transcribing chunk {i + 1} of {len(chunks)}: {e}")
+                break
 
     finally:
         spinner.stop()
@@ -114,14 +119,6 @@ def main(url):
             # Remove the downloaded file from the filesystem
             remove_downloaded_file(downloaded_file)
             agent_output(f"(AGENT) -> Removed downloaded file: {downloaded_file}")
-
-    # Transcribe the audio file
-    transcription = transcribe_audio(downloaded_file)
-    agent_output(f"(AGENT) -> Transcription: {transcription}")
-
-    # Remove the downloaded file from the filesystem
-    remove_downloaded_file(downloaded_file)
-    agent_output(f"(AGENT) -> Removed downloaded file: {downloaded_file}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
