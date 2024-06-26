@@ -5,6 +5,7 @@ import requests
 import yt_dlp
 from colorama import Fore, Style, init
 from halo import Halo
+import whisper
 
 init(autoreset=True)
 
@@ -46,7 +47,11 @@ def download_audio_file(url):
     new_filename = os.path.splitext(filename)[0] + ".m4a"
     return os.path.abspath(new_filename)
 
-def remove_downloaded_file(filepath):
+def transcribe_audio(filepath):
+    "Transcribe the audio file using Whisper"
+    model = whisper.load_model("base")
+    result = model.transcribe(filepath)
+    return result['text']
     "Remove the downloaded file from the filesystem"
     if os.path.exists(filepath):
         os.remove(filepath)
@@ -60,6 +65,10 @@ def main(url):
     # Download the audio file
     downloaded_file = download_audio_file(url)
     agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
+
+    # Transcribe the audio file
+    transcription = transcribe_audio(downloaded_file)
+    agent_output(f"(AGENT) -> Transcription: {transcription}")
 
     # Remove the downloaded file from the filesystem
     remove_downloaded_file(downloaded_file)
