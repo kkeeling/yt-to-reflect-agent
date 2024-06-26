@@ -32,6 +32,7 @@ def download_audio_file(url):
 
     spinner = Halo(text='Downloading audio', spinner='dots')
     spinner.start()
+    
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             # Extract information about the YouTube video
