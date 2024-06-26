@@ -2,9 +2,15 @@ import os
 import sys
 import json
 import requests
+import yt_dlp
 
 def download_youtube_video(url, output_path):
-   pass
+    ydl_opts = {
+        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
+        'format': 'best'
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
 
 def upload_to_reflect(video_path, reflect_api_url, api_key):
    pass
