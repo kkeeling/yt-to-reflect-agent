@@ -3,6 +3,9 @@ import sys
 import json
 import requests
 import yt_dlp
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 def download_youtube_video(url):
     # Download the audio from the YouTube video
@@ -32,7 +35,7 @@ def main(youtube_url):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        youtube_url = input("(AGENT) Please enter the YouTube URL: ")
+        youtube_url = input(Fore.YELLOW + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
     else:
         youtube_url = sys.argv[1]
     main(youtube_url)
