@@ -49,8 +49,15 @@ def download_audio_file(url):
 
 def transcribe_audio(filepath):
     "Transcribe the audio file using Whisper"
-    model = whisper.load_model("base")
-    result = model.transcribe(filepath)
+    spinner = Halo(text='Transcribing audio', spinner='dots')
+    spinner.start()
+    
+    try:
+        model = whisper.load_model("base")
+        result = model.transcribe(filepath)
+    finally:
+        spinner.stop()
+    
     return result['text']
 
 def remove_downloaded_file(filepath):
