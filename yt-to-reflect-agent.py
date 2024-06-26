@@ -56,15 +56,25 @@ def transcribe_audio(filepath):
     spinner.start()
     
     try:
-        # Load the audio file using AudioSegment
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-        # Convert the audio file to mp3 format
+        # Load the audio file using AudioSegment
         audio = AudioSegment.from_file(filepath)
         print("Audio file loaded successfully.")
 
-        file_obj = io.BytesIO(audio.export(format="mp3").read())
-        file_obj.name = "audio.mp3"
+        # Define chunk duration (20 minutes)
+        chunk_duration_ms = 20 * 60 * 1000  # 20 minutes in milliseconds
+
+        # Split audio into chunks
+        chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
+
+        transcription = ""
+        for i, chunk in enumerate(chunks):
+            file_obj = io.BytesIO(chunk.export(format="mp3").read())
+            file_obj.name = f"audio_chunk_{i}.mp3"
+
+            response = openai.Audio.transcribe("whisper-1", file_obj)
+            transcription += response['text'] + " "
 
     finally:
         spinner.stop()
