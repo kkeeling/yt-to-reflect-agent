@@ -3,9 +3,11 @@ import sys
 import json
 import requests
 import yt_dlp
+import io
 from colorama import Fore, Style, init
 from halo import Halo
 import openai
+from pydub import AudioSegment
 
 init(autoreset=True)
 
@@ -54,9 +56,16 @@ def transcribe_audio(filepath):
     spinner.start()
     
     try:
-        with open(filepath, 'rb') as audio_file:
-            response = openai.Audio.transcribe("whisper-1", audio_file)
-            transcription = response['text']
+        # Load the audio file using AudioSegment
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+        # Convert the audio file to mp3 format
+        audio = AudioSegment.from_file(filepath)
+        print("Audio file loaded successfully.")
+
+        file_obj = io.BytesIO(audio.export(format="mp3").read())
+        file_obj.name = "audio.mp3"
+
     finally:
         spinner.stop()
     
@@ -86,7 +95,6 @@ def main(url):
     # Download the audio file
     downloaded_file = download_audio_file(url)
     agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
-
 
     # Transcribe the audio file
     transcription = transcribe_audio(downloaded_file)
