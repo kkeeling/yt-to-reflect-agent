@@ -27,7 +27,7 @@ def download_youtube_video(url):
         # Prepare the filename for the downloaded audio
         filename = ydl.prepare_filename(info_dict)
 
-def upload_to_reflect(video_path, reflect_api_url, api_key):
+def upload_to_reflect():
    pass
 
 def main(youtube_url):
