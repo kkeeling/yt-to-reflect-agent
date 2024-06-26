@@ -100,9 +100,20 @@ def upload_to_reflect():
    pass
 
 def main(url):
-    # Download the audio file
-    downloaded_file = download_audio_file(url)
-    agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
+    downloaded_file = None
+    try:
+        # Download the audio file
+        downloaded_file = download_audio_file(url)
+        agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
+
+        # Transcribe the audio file
+        transcription = transcribe_audio(downloaded_file)
+        agent_output(f"(AGENT) -> Transcription: {transcription}")
+    finally:
+        if downloaded_file:
+            # Remove the downloaded file from the filesystem
+            remove_downloaded_file(downloaded_file)
+            agent_output(f"(AGENT) -> Removed downloaded file: {downloaded_file}")
 
     # Transcribe the audio file
     transcription = transcribe_audio(downloaded_file)
