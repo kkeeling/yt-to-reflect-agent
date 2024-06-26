@@ -35,7 +35,9 @@ def download_audio_file(url):
         # Prepare the filename for the downloaded audio
         filename = ydl.prepare_filename(info_dict)
 
-    return os.path.abspath(filename)
+    # Change the extension to m4a
+    new_filename = os.path.splitext(filename)[0] + ".m4a"
+    return os.path.abspath(new_filename)
 
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
