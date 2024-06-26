@@ -27,10 +27,20 @@ def download_youtube_video(url):
         # Prepare the filename for the downloaded audio
         filename = ydl.prepare_filename(info_dict)
 
+def remove_downloaded_file(filepath):
+    "Remove the downloaded file from the filesystem"
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    else:
+        print(f"The file {filepath} does not exist.")
+
 def upload_to_reflect():
    pass
 
 def main(youtube_url):
+    # Example usage of remove_downloaded_file
+    downloaded_file = "example.m4a"  # Replace with actual filename
+    remove_downloaded_file(downloaded_file)
     download_youtube_video(youtube_url)
 
 if __name__ == "__main__":
