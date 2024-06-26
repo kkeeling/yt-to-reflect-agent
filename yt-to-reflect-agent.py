@@ -35,7 +35,7 @@ def download_audio_file(url):
         # Prepare the filename for the downloaded audio
         filename = ydl.prepare_filename(info_dict)
 
-    return filename
+    return os.path.abspath(filename)
 
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
