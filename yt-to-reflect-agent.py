@@ -58,7 +58,7 @@ def transcribe_audio(filepath):
     try:
         # Load the audio file using AudioSegment
         audio = AudioSegment.from_file(filepath)
-        print("Audio file loaded successfully.")
+        agent_output("Audio file loaded successfully.")
 
         # Define chunk duration (20 minutes)
         chunk_duration_ms = 20 * 60 * 1000  # 20 minutes in milliseconds
@@ -69,14 +69,14 @@ def transcribe_audio(filepath):
         transcription = ""
         for i, chunk in enumerate(chunks):
             try:
-                agent_output(f"(AGENT) -> Transcribing chunk {i + 1} of {len(chunks)}")
+                agent_output(f"Transcribing chunk {i + 1} of {len(chunks)}")
                 file_obj = io.BytesIO(chunk.export(format="mp3").read())
                 file_obj.name = f"audio_chunk_{i}.mp3"
 
                 response = openai.Audio.transcribe("whisper-1", file_obj)
                 transcription += response['text'] + " "
             except Exception as e:
-                error_output(f"(AGENT) -> Error transcribing chunk {i + 1} of {len(chunks)}: {e}")
+                error_output(f"Error transcribing chunk {i + 1} of {len(chunks)}: {e}")
                 break
 
     finally:
@@ -109,21 +109,21 @@ def main(url):
     try:
         # Download the audio file
         downloaded_file = download_audio_file(url)
-        agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
+        agent_output(f"Downloaded file: {downloaded_file}")
 
         # Transcribe the audio file
         transcription = transcribe_audio(downloaded_file)
-        agent_output(f"(AGENT) -> Transcription: {transcription}")
+        agent_output(f"Transcription: {transcription}")
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
             remove_downloaded_file(downloaded_file)
-            agent_output(f"(AGENT) -> Removed downloaded file: {downloaded_file}")
+            agent_output(f"Removed downloaded file: {downloaded_file}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         youtube_url = input(Fore.YELLOW + "(AGENT) <- Please enter the YouTube URL: " + Style.RESET_ALL)
-        agent_output(f"(AGENT) -> Received YouTube URL: {youtube_url}")
+        agent_output(f"Received YouTube URL: {youtube_url}")
     else:
         youtube_url = sys.argv[1]
     main(youtube_url)
