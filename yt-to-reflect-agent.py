@@ -7,7 +7,11 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
-def download_audio_file(url):
+def agent_output(message):
+    print(Fore.GREEN + message + Style.RESET_ALL)
+
+def error_output(message):
+    print(Fore.RED + message + Style.RESET_ALL)
     # Download the audio from the YouTube video
     ydl_opts = {
         # Specify the format to download the best audio available
@@ -34,7 +38,7 @@ def remove_downloaded_file(filepath):
     if os.path.exists(filepath):
         os.remove(filepath)
     else:
-        print(Fore.RED + f"The file {filepath} does not exist." + Style.RESET_ALL)
+        error_output(f"The file {filepath} does not exist.")
 
 def upload_to_reflect():
    pass
@@ -42,7 +46,7 @@ def upload_to_reflect():
 def main(youtube_url):
     # Download the audio file
     downloaded_file = download_audio_file(youtube_url)
-    print(f"Downloaded file: {downloaded_file}")
+    agent_output(f"Downloaded file: {downloaded_file}")
 
     # Remove the downloaded file from the filesystem
     remove_downloaded_file(downloaded_file)
@@ -52,6 +56,7 @@ def main(youtube_url):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         youtube_url = input(Fore.YELLOW + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
+        agent_output(f"Received YouTube URL: {youtube_url}")
     else:
         youtube_url = sys.argv[1]
     main(youtube_url)
