@@ -65,7 +65,6 @@ def download_audio_file(url):
 
             title = info_dict['title']
             description = info_dict['description']
-        
 
             # Prepare the filename for the downloaded audio
             filename = ydl.prepare_filename(info_dict)
@@ -122,6 +121,11 @@ def transcribe_audio(filepath):
 
 
 def run_chainable(transcription, title, description):
+    # Load the summarize prompt
+    with open("summarize_prompt.md", "r") as f:
+        summarize_prompt = f.read()
+    agent_output(f"Loaded summarize prompt: {summarize_prompt}")
+
     model = build_models()
 
     result, context_filled_prompts = MinimalChainable.run(
@@ -129,7 +133,7 @@ def run_chainable(transcription, title, description):
         model=model,
         callable=prompt,
         prompts=[
-            "You are an expert at summarizing long text. Summarize the following text: {transcription}"
+            f"{summarize_prompt} {transcription}"
         ]
     )
     
@@ -162,7 +166,7 @@ def main(url):
 
         # Transcribe the audio file
         transcription = transcribe_audio(downloaded_file)
-        agent_output(f"Transcription: {transcription}")
+        agent_output(f"Transcription of {result['title']} complete.")
 
         # Run the chainable
         run_chainable(transcription, result['title'], result['description'])
