@@ -4,6 +4,7 @@ import json
 import requests
 import yt_dlp
 from colorama import Fore, Style, init
+from halo import Halo
 
 init(autoreset=True)
 
@@ -29,11 +30,16 @@ def download_audio_file(url):
         'no_warnings': True
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        # Extract information about the YouTube video
-        info_dict = ydl.extract_info(url, download=True)
-        # Prepare the filename for the downloaded audio
-        filename = ydl.prepare_filename(info_dict)
+    spinner = Halo(text='Downloading audio', spinner='dots')
+    spinner.start()
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Extract information about the YouTube video
+            info_dict = ydl.extract_info(url, download=True)
+            # Prepare the filename for the downloaded audio
+            filename = ydl.prepare_filename(info_dict)
+    finally:
+        spinner.stop()
 
     # Change the extension to m4a
     new_filename = os.path.splitext(filename)[0] + ".m4a"
