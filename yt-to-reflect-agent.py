@@ -3,7 +3,6 @@ import sys
 import json
 import requests
 import yt_dlp
-from tqdm import tqdm
 from colorama import Fore, Style, init
 
 init(autoreset=True)
@@ -30,13 +29,11 @@ def download_audio_file(url):
         'no_warnings': True
     }
 
-    with tqdm(total=100, desc="Downloading and processing", bar_format="{l_bar}{bar} [ time left: {remaining} ]") as pbar:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # Extract information about the YouTube video
-            info_dict = ydl.extract_info(url, download=True)
-            # Prepare the filename for the downloaded audio
-            filename = ydl.prepare_filename(info_dict)
-            pbar.update(100)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        # Extract information about the YouTube video
+        info_dict = ydl.extract_info(url, download=True)
+        # Prepare the filename for the downloaded audio
+        filename = ydl.prepare_filename(info_dict)
 
     # Change the extension to m4a
     new_filename = os.path.splitext(filename)[0] + ".m4a"
