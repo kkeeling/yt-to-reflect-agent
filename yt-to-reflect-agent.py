@@ -7,7 +7,7 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
-def download_youtube_video(url):
+def download_audio_file(url):
     # Download the audio from the YouTube video
     ydl_opts = {
         # Specify the format to download the best audio available
@@ -40,11 +40,14 @@ def upload_to_reflect():
    pass
 
 def main(youtube_url):
-    # Example usage of remove_downloaded_file
-    downloaded_file = "example.m4a"  # Replace with actual filename
-    remove_downloaded_file(downloaded_file)
-    downloaded_file = download_youtube_video(youtube_url)
+    # Download the audio file
+    downloaded_file = download_audio_file(youtube_url)
     print(f"Downloaded file: {downloaded_file}")
+
+    # Remove the downloaded file from the filesystem
+    remove_downloaded_file(downloaded_file)
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
