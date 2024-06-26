@@ -8,10 +8,10 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 def agent_output(message):
-    print(Fore.GREEN + message + Style.RESET_ALL)
+    print(Fore.GREEN + "(AGENT) -> " + message + Style.RESET_ALL)
 
 def error_output(message):
-    print(Fore.RED + message + Style.RESET_ALL)
+    print(Fore.RED + "(AGENT) -> " + message + Style.RESET_ALL)
 def download_youtube_video(url):
     # Download the audio from the YouTube video
     ydl_opts = {
@@ -49,7 +49,7 @@ def upload_to_reflect():
 def main(youtube_url):
     # Download the audio file
     downloaded_file = download_youtube_video(youtube_url)
-    agent_output(f"Downloaded file: {downloaded_file}")
+    agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
 
     # Remove the downloaded file from the filesystem
     remove_downloaded_file(downloaded_file)
@@ -59,7 +59,7 @@ def main(youtube_url):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         youtube_url = input(Fore.GREEN + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
-        agent_output(f"Received YouTube URL: {youtube_url}")
+        agent_output(f"(AGENT) -> Received YouTube URL: {youtube_url}")
     else:
         youtube_url = sys.argv[1]
     main(youtube_url)
