@@ -90,16 +90,6 @@ def remove_downloaded_file(filepath):
         os.remove(filepath)
     else:
         error_output(f"The file {filepath} does not exist.")
-    "Remove the downloaded file from the filesystem"
-    if os.path.exists(filepath):
-        os.remove(filepath)
-    else:
-        error_output(f"The file {filepath} does not exist.")
-    "Remove the downloaded file from the filesystem"
-    if os.path.exists(filepath):
-        os.remove(filepath)
-    else:
-        error_output(f"The file {filepath} does not exist.")
 
 def upload_to_reflect():
    pass
