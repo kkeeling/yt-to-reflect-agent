@@ -56,8 +56,7 @@ def main(url):
 
     # Remove the downloaded file from the filesystem
     remove_downloaded_file(downloaded_file)
-
-
+    agent_output(f"(AGENT) -> Removed downloaded file: {downloaded_file}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
