@@ -18,7 +18,9 @@ def download_youtube_video(url):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'm4a',
-        }]
+        }],
+        'quiet': True,
+        'no_warnings': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
