@@ -56,8 +56,6 @@ def transcribe_audio(filepath):
     spinner.start()
     
     try:
-        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
         # Load the audio file using AudioSegment
         audio = AudioSegment.from_file(filepath)
         print("Audio file loaded successfully.")
