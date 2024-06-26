@@ -1,15 +1,15 @@
 import os
 import sys
-import json
-import requests
 import yt_dlp
 import io
+import json
 from colorama import Fore, Style, init
 from halo import Halo
-import openai
 from pydub import AudioSegment
 from dotenv import load_dotenv
 import llm
+from chain import MinimalChainable
+from openai import OpenAI
 
 init(autoreset=True)
 
@@ -61,6 +61,12 @@ def download_audio_file(url):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             # Extract information about the YouTube video
             info_dict = ydl.extract_info(url, download=True)
+            # Write info_dict to file, with pretty json
+
+            title = info_dict['title']
+            description = info_dict['description']
+        
+
             # Prepare the filename for the downloaded audio
             filename = ydl.prepare_filename(info_dict)
     finally:
@@ -68,7 +74,12 @@ def download_audio_file(url):
 
     # Change the extension to m4a
     new_filename = os.path.splitext(filename)[0] + ".m4a"
-    return os.path.abspath(new_filename)
+
+    return {
+        "title": title,
+        "description": description,
+        "filepath": os.path.abspath(new_filename)
+    }
 
 
 def transcribe_audio(filepath):
@@ -87,6 +98,7 @@ def transcribe_audio(filepath):
         # Split audio into chunks
         chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
 
+        client = OpenAI()
         transcription = ""
         for i, chunk in enumerate(chunks):
             try:
@@ -94,8 +106,11 @@ def transcribe_audio(filepath):
                 file_obj = io.BytesIO(chunk.export(format="mp3").read())
                 file_obj.name = f"audio_chunk_{i}.mp3"
 
-                response = openai.Audio.transcribe("whisper-1", file_obj)
-                transcription += response['text'] + " "
+                response = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=file_obj
+                )
+                transcription += response.text + " "
             except Exception as e:
                 error_output(f"Error transcribing chunk {i + 1} of {len(chunks)}: {e}")
                 break
@@ -104,6 +119,28 @@ def transcribe_audio(filepath):
         spinner.stop()
     
     return transcription
+
+
+def run_chainable(transcription, title, description):
+    model = build_models()
+
+    result, context_filled_prompts = MinimalChainable.run(
+        context={"title": title, "description": description, "transcription": transcription},
+        model=model,
+        callable=prompt,
+        prompts=[
+            "You are an expert at summarizing long text. Summarize the following text: {transcription}"
+        ]
+    )
+    
+    chained_prompts = MinimalChainable.to_delim_text_file(
+        "poc_context_filled_prompts", context_filled_prompts
+    )
+    chainable_result = MinimalChainable.to_delim_text_file("poc_prompt_results", result)
+
+    print(f"\n\n📖 Prompts~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n\n{chained_prompts}")
+    print(f"\n\n📊 Results~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n\n{chainable_result}")
+
 
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
@@ -119,12 +156,16 @@ def main(url):
     downloaded_file = None
     try:
         # Download the audio file
-        downloaded_file = download_audio_file(url)
-        agent_output(f"Downloaded file: {downloaded_file}")
+        result = download_audio_file(url)
+        downloaded_file = result['filepath']
+        agent_output(f"Downloaded file: {result['title']}")
 
         # Transcribe the audio file
         transcription = transcribe_audio(downloaded_file)
         agent_output(f"Transcription: {transcription}")
+
+        # Run the chainable
+        run_chainable(transcription, result['title'], result['description'])
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
