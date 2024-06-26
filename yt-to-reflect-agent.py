@@ -58,7 +58,7 @@ def main(youtube_url):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        youtube_url = input(Fore.YELLOW + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
+        youtube_url = input(Fore.GREEN + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
         agent_output(f"Received YouTube URL: {youtube_url}")
     else:
         youtube_url = sys.argv[1]
