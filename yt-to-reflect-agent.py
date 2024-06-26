@@ -52,6 +52,13 @@ def transcribe_audio(filepath):
     model = whisper.load_model("base")
     result = model.transcribe(filepath)
     return result['text']
+
+def remove_downloaded_file(filepath):
+    "Remove the downloaded file from the filesystem"
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    else:
+        error_output(f"The file {filepath} does not exist.")
     "Remove the downloaded file from the filesystem"
     if os.path.exists(filepath):
         os.remove(filepath)
