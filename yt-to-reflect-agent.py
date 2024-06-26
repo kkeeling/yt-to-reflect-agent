@@ -8,6 +8,8 @@ from colorama import Fore, Style, init
 from halo import Halo
 import openai
 from pydub import AudioSegment
+from dotenv import load_dotenv
+import llm
 
 init(autoreset=True)
 
@@ -16,6 +18,25 @@ def agent_output(message):
 
 def error_output(message):
     print(Fore.RED + "(AGENT) -> " + message + Style.RESET_ALL)
+
+def build_models():
+    load_dotenv()
+
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
+    sonnet_3_5_model: llm.Model = llm.get_model("claude-3.5-sonnet")
+    sonnet_3_5_model.key = ANTHROPIC_API_KEY
+
+    return sonnet_3_5_model
+
+
+def prompt(model: llm.Model, prompt: str):
+    res = model.prompt(
+        prompt,
+        temperature=0.5,
+    )
+    return res.text()
+
 
 def download_audio_file(url):
     # Download the audio from the YouTube video
