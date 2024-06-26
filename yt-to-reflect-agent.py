@@ -12,7 +12,8 @@ def agent_output(message):
 
 def error_output(message):
     print(Fore.RED + "(AGENT) -> " + message + Style.RESET_ALL)
-def download_youtube_video(url):
+
+def download_audio_file(url):
     # Download the audio from the YouTube video
     ydl_opts = {
         # Specify the format to download the best audio available
@@ -46,9 +47,9 @@ def remove_downloaded_file(filepath):
 def upload_to_reflect():
    pass
 
-def main(youtube_url):
+def main(url):
     # Download the audio file
-    downloaded_file = download_youtube_video(youtube_url)
+    downloaded_file = download_audio_file(url)
     agent_output(f"(AGENT) -> Downloaded file: {downloaded_file}")
 
     # Remove the downloaded file from the filesystem
@@ -58,7 +59,7 @@ def main(youtube_url):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        youtube_url = input(Fore.GREEN + "(AGENT) Please enter the YouTube URL: " + Style.RESET_ALL)
+        youtube_url = input(Fore.YELLOW + "(AGENT) <- Please enter the YouTube URL: " + Style.RESET_ALL)
         agent_output(f"(AGENT) -> Received YouTube URL: {youtube_url}")
     else:
         youtube_url = sys.argv[1]
