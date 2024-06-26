@@ -45,7 +45,7 @@ def upload_to_reflect():
 
 def main(youtube_url):
     # Download the audio file
-    downloaded_file = download_audio_file(youtube_url)
+    downloaded_file = download_youtube_video(youtube_url)
     agent_output(f"Downloaded file: {downloaded_file}")
 
     # Remove the downloaded file from the filesystem
