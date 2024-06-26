@@ -12,6 +12,7 @@ def agent_output(message):
 
 def error_output(message):
     print(Fore.RED + message + Style.RESET_ALL)
+def download_youtube_video(url):
     # Download the audio from the YouTube video
     ydl_opts = {
         # Specify the format to download the best audio available
@@ -22,7 +23,9 @@ def error_output(message):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'm4a',
-        }]
+        }],
+        'quiet': True,
+        'no_warnings': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
