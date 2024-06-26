@@ -34,7 +34,7 @@ def remove_downloaded_file(filepath):
     if os.path.exists(filepath):
         os.remove(filepath)
     else:
-        print(f"The file {filepath} does not exist.")
+        print(Fore.RED + f"The file {filepath} does not exist." + Style.RESET_ALL)
 
 def upload_to_reflect():
    pass
