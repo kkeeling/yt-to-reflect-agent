@@ -159,16 +159,60 @@ def remove_downloaded_file(filepath):
     else:
         error_output(f"The file {filepath} does not exist.")
 
-def create_reflect_note(api_key, url, title, description, agent_response, transcription):
+def add_note_to_reflect(title, content):
+    """
+    Adds a new note to Reflect using their API.
+    
+    Args:
+    title (str): The title of the new note
+    content (str): The content of the new note
+    
+    Returns:
+    dict: The response from the API containing the created note's details
+    """
+    
+    # API endpoint for creating a new note
+    url = f"https://reflect.app/api/graphs/{os.getenv('REFLECT_GRAPH_ID')}/notes"
+
+    # Get the API key from the environment
+    api_key = os.getenv("REFLECT_API_KEY")
+    
+    # Headers for the request
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # Payload for creating a new note
+    payload = {
+        "subject": title,
+        "content_markdown": content,
+        "pinned": False
+    }
+    
+    try:
+        # Send POST request to create a new note
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        
+        # Check if the request was successful
+        response.raise_for_status()
+        
+        # Return the created note's details
+        return response.json()
+    
+    except requests.exceptions.RequestException as e:
+        error_output(f"An error occurred: {e}")
+        return None
+
+def create_reflect_note(url, title, description, summary, transcription):
     """
     Creates a new note in Reflect with the given details.
     
     Args:
-    api_key (str): Your Reflect API key
     url (str): The URL of the YouTube video
     title (str): The title of the new note
     description (str): The description of the new note
-    agent_response (str): The summarized response from the agent
+    summary (str): The summarized response from the agent
     transcription (str): The transcription of the audio
     
     Returns:
@@ -178,25 +222,36 @@ def create_reflect_note(api_key, url, title, description, agent_response, transc
 - Type: #link
 - URL: {url}
 - Description: {description}
-- Summary: {agent_response}
-- Raw: {transcription}
+- Summary:\n\t{summary}
+- Raw:\n\t{transcription}
     """
-    return add_note_to_reflect(api_key, title, content)
 
-def append_to_daily_note(api_key, content):
+    spinner = Halo(text='Creating note in Reflect...', spinner='dots')
+    spinner.start() 
+
+    result = add_note_to_reflect(title, content)
+
+    spinner.stop()
+
+    return result
+
+def append_to_daily_note(content, list_name="Links"):
     """
     Appends content to the daily note in Reflect using their API.
     
     Args:
-    api_key (str): Your Reflect API key
     content (str): The content to append to the daily note
+    list_name (str): The name of the list to append to (default: "Links")
     
     Returns:
     dict: The response from the API containing the updated note's details
     """
     
-    # API endpoint for creating/updating a note
-    url = "https://reflect.app/api/v1/notes"
+    # API endpoint for updating the daily note
+    url = f"https://reflect.app/api/graphs/{os.getenv('REFLECT_GRAPH_ID')}/daily-notes"
+    
+    # Get the API key from the environment
+    api_key = os.getenv("REFLECT_API_KEY")
     
     # Headers for the request
     headers = {
@@ -204,20 +259,20 @@ def append_to_daily_note(api_key, content):
         "Content-Type": "application/json"
     }
     
-    # Get the current date for the daily note title
+    # Get the current date for the daily note
     today = datetime.now().strftime("%Y-%m-%d")
-    title = f"Daily Note {today}"
     
     # Payload for updating the daily note
     payload = {
-        "title": title,
-        "content": content,
-        "append": True  # This flag tells Reflect to append the content
+        "date": today,
+        "text": content,
+        "transform_type": "list-append",
+        "list_name": list_name
     }
     
     try:
-        # Send POST request to update the daily note
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        # Send PUT request to update the daily note
+        response = requests.put(url, headers=headers, json=payload)
         
         # Check if the request was successful
         response.raise_for_status()
@@ -226,7 +281,7 @@ def append_to_daily_note(api_key, content):
         return response.json()
     
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
+        error_output(f"An error occurred: {e}")
         return None
 
 def main(url):
@@ -243,32 +298,14 @@ def main(url):
 
         # Run the chainable
         agent_response = run_chainable(transcription, result['title'], result['description'])
+        agent_output(f"Summary of {result['title']} complete.")
 
         # Create a new note in Reflect
-        api_key = os.getenv("REFLECT_API_KEY")
-        create_reflect_note(api_key, url, result['title'], result['description'], agent_response, transcription)
-    finally:
-        if downloaded_file:
-            # Remove the downloaded file from the filesystem
-            remove_downloaded_file(downloaded_file)
-            agent_output(f"Removed downloaded file: {downloaded_file}")
-    downloaded_file = None
-    try:
-        # Download the audio file
-        result = download_audio_file(url)
-        downloaded_file = result['filepath']
-        agent_output(f"Downloaded file: {result['title']}")
-
-        # Transcribe the audio file
-        transcription = transcribe_audio(downloaded_file)
-        agent_output(f"Transcription of {result['title']} complete.")
-
-        # Run the chainable
-        agent_response = run_chainable(transcription, result['title'], result['description'])
-
-        # Create a new note in Reflect
-        api_key = os.getenv("REFLECT_API_KEY")
-        create_reflect_note(api_key, url, result['title'], result['description'], agent_response, transcription)
+        create_reflect_note(url, result['title'], result['description'], agent_response[0], transcription)
+        agent_output(f"Note created in Reflect.")
+    
+        # Append backlink to new note to daily note
+        append_to_daily_note(f"- [[{result['title']}]]({url})")
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
