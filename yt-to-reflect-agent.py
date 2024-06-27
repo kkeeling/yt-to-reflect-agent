@@ -152,7 +152,6 @@ def run_chainable(transcription, title, description):
     
     return result
 
-
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
     if os.path.exists(filepath):
@@ -261,7 +260,17 @@ def main(url):
         agent_output(f"Transcription of {result['title']} complete.")
 
         # Run the chainable
-        result = run_chainable(transcription, result['title'], result['description'])
+        agent_response = run_chainable(transcription, result['title'], result['description'])
+
+        # Create a new note in Reflect
+        content = f"""
+- Type: #link
+- URL: {url}
+- Description: {result['description']}
+- Summary: {agent_response}
+- Raw: {transcription}
+        """
+        add_note_to_reflect(api_key, result['title'], content)
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
