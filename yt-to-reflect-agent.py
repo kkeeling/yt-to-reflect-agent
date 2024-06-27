@@ -126,6 +126,11 @@ def run_chainable(transcription, title, description):
         summarize_prompt = f.read()
     agent_output(f"Loaded summarize prompt: {summarize_prompt}")
 
+    # Load the decorate prompt
+    with open("decorate_prompt.md", "r") as f:
+        decorate_prompt = f.read()
+    agent_output(f"Loaded decorate prompt: {decorate_prompt}")
+
     model = build_models()
 
     result, context_filled_prompts = MinimalChainable.run(
