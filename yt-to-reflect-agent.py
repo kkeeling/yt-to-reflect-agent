@@ -247,7 +247,29 @@ def append_to_daily_note(api_key, content):
         print(f"An error occurred: {e}")
         return None
 
-def main(url):
+def create_reflect_note(api_key, url, title, description, agent_response, transcription):
+    """
+    Creates a new note in Reflect with the given details.
+    
+    Args:
+    api_key (str): Your Reflect API key
+    url (str): The URL of the YouTube video
+    title (str): The title of the new note
+    description (str): The description of the new note
+    agent_response (str): The summarized response from the agent
+    transcription (str): The transcription of the audio
+    
+    Returns:
+    dict: The response from the API containing the created note's details
+    """
+    content = f"""
+- Type: #link
+- URL: {url}
+- Description: {description}
+- Summary: {agent_response}
+- Raw: {transcription}
+    """
+    return add_note_to_reflect(api_key, title, content)
     downloaded_file = None
     try:
         # Download the audio file
@@ -263,14 +285,7 @@ def main(url):
         agent_response = run_chainable(transcription, result['title'], result['description'])
 
         # Create a new note in Reflect
-        content = f"""
-- Type: #link
-- URL: {url}
-- Description: {result['description']}
-- Summary: {agent_response}
-- Raw: {transcription}
-        """
-        add_note_to_reflect(api_key, result['title'], content)
+        create_reflect_note(api_key, url, result['title'], result['description'], agent_response, transcription)
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
