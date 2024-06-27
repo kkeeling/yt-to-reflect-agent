@@ -125,12 +125,10 @@ def run_chainable(transcription, title, description):
     # Load the summarize prompt
     with open("summarize_prompt.md", "r") as f:
         summarize_prompt = f.read()
-    agent_output(f"Loaded summarize prompt: {summarize_prompt}")
 
     # Load the decorate prompt
     with open("decorate_prompt.md", "r") as f:
         decorate_prompt = f.read()
-    agent_output(f"Loaded decorate prompt: {decorate_prompt}")
 
     spinner = Halo(text='Summarizing...', spinner='dots')
 
@@ -150,8 +148,8 @@ def run_chainable(transcription, title, description):
     finally:
         spinner.stop()
     
-    agent_output(f"Result: {result}")
-    
+    return result
+
 
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
@@ -176,7 +174,7 @@ def main(url):
         agent_output(f"Transcription of {result['title']} complete.")
 
         # Run the chainable
-        run_chainable(transcription, result['title'], result['description'])
+        result = run_chainable(transcription, result['title'], result['description'])
     finally:
         if downloaded_file:
             # Remove the downloaded file from the filesystem
