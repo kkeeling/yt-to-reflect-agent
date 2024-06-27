@@ -159,47 +159,29 @@ def remove_downloaded_file(filepath):
     else:
         error_output(f"The file {filepath} does not exist.")
 
-def add_note_to_reflect(api_key, title, content):
+def create_reflect_note(api_key, url, title, description, agent_response, transcription):
     """
-    Adds a new note to Reflect using their API.
+    Creates a new note in Reflect with the given details.
     
     Args:
     api_key (str): Your Reflect API key
+    url (str): The URL of the YouTube video
     title (str): The title of the new note
-    content (str): The content of the new note
+    description (str): The description of the new note
+    agent_response (str): The summarized response from the agent
+    transcription (str): The transcription of the audio
     
     Returns:
     dict: The response from the API containing the created note's details
     """
-    
-    # API endpoint for creating a new note
-    url = "https://reflect.app/api/v1/notes"
-    
-    # Headers for the request
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-    
-    # Payload for creating a new note
-    payload = {
-        "title": title,
-        "content": content
-    }
-    
-    try:
-        # Send POST request to create a new note
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        
-        # Check if the request was successful
-        response.raise_for_status()
-        
-        # Return the created note's details
-        return response.json()
-    
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
-        return None
+    content = f"""
+- Type: #link
+- URL: {url}
+- Description: {description}
+- Summary: {agent_response}
+- Raw: {transcription}
+    """
+    return add_note_to_reflect(api_key, title, content)
 
 def append_to_daily_note(api_key, content):
     """
@@ -263,6 +245,7 @@ def main(url):
         agent_response = run_chainable(transcription, result['title'], result['description'])
 
         # Create a new note in Reflect
+        api_key = os.getenv("REFLECT_API_KEY")
         create_reflect_note(api_key, url, result['title'], result['description'], agent_response, transcription)
     finally:
         if downloaded_file:
@@ -284,6 +267,7 @@ def main(url):
         agent_response = run_chainable(transcription, result['title'], result['description'])
 
         # Create a new note in Reflect
+        api_key = os.getenv("REFLECT_API_KEY")
         create_reflect_note(api_key, url, result['title'], result['description'], agent_response, transcription)
     finally:
         if downloaded_file:
