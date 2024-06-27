@@ -84,7 +84,6 @@ def download_audio_file(url):
 def transcribe_audio(filepath):
     "Transcribe the audio file using OpenAI's Whisper API"
     spinner = Halo(text='Transcribing audio', spinner='dots')
-    spinner.start()
     
     try:
         # Load the audio file using AudioSegment
@@ -97,11 +96,13 @@ def transcribe_audio(filepath):
         # Split audio into chunks
         chunks = [audio[i:i + chunk_duration_ms] for i in range(0, len(audio), chunk_duration_ms)]
 
+        spinner.start()
+
         client = OpenAI()
         transcription = ""
         for i, chunk in enumerate(chunks):
             try:
-                agent_output(f"Transcribing chunk {i + 1} of {len(chunks)}")
+                # agent_output(f"Transcribing chunk {i + 1} of {len(chunks)}")
                 file_obj = io.BytesIO(chunk.export(format="mp3").read())
                 file_obj.name = f"audio_chunk_{i}.mp3"
 
@@ -131,16 +132,23 @@ def run_chainable(transcription, title, description):
         decorate_prompt = f.read()
     agent_output(f"Loaded decorate prompt: {decorate_prompt}")
 
-    model = build_models()
+    spinner = Halo(text='Summarizing...', spinner='dots')
 
-    result, context_filled_prompts = MinimalChainable.run(
-        context={"title": title, "description": description, "transcription": transcription},
+    try:
+        model = build_models()
+
+        result, context_filled_prompts = MinimalChainable.run(
+        context={"title": title, "description": description, "transcript": transcription},
         model=model,
         callable=prompt,
         prompts=[
-            f"{summarize_prompt} {transcription}"
-        ]
-    )
+            # prompt 1
+            f"{summarize_prompt}",
+            # prompt 2
+            f"{decorate_prompt}"
+        ])
+    finally:
+        spinner.stop()
     
     chained_prompts = MinimalChainable.to_delim_text_file(
         "poc_context_filled_prompts", context_filled_prompts

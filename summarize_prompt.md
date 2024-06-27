@@ -25,3 +25,15 @@ Take a step back and think step by step about how to achieve the best result pos
 5. Do not start items with the same opening words.
 
 ## INPUT
+
+<title>
+{{title}}
+</title>
+
+<description>
+{{description}}
+</description>
+
+<transcript>
+{{transcript}}
+</transcript>
