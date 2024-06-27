@@ -150,14 +150,8 @@ def run_chainable(transcription, title, description):
     finally:
         spinner.stop()
     
-    chained_prompts = MinimalChainable.to_delim_text_file(
-        "poc_context_filled_prompts", context_filled_prompts
-    )
-    chainable_result = MinimalChainable.to_delim_text_file("poc_prompt_results", result)
-
-    print(f"\n\n📖 Prompts~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n\n{chained_prompts}")
-    print(f"\n\n📊 Results~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n\n{chainable_result}")
-
+    agent_output(f"Result: {result}")
+    
 
 def remove_downloaded_file(filepath):
     "Remove the downloaded file from the filesystem"
