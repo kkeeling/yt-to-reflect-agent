@@ -11,6 +11,7 @@ import llm
 from chain import MinimalChainable
 from openai import OpenAI
 import requests
+from datetime import datetime
 
 init(autoreset=True)
 
@@ -195,6 +196,52 @@ def add_note_to_reflect(api_key, title, content):
         response.raise_for_status()
         
         # Return the created note's details
+        return response.json()
+    
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def append_to_daily_note(api_key, content):
+    """
+    Appends content to the daily note in Reflect using their API.
+    
+    Args:
+    api_key (str): Your Reflect API key
+    content (str): The content to append to the daily note
+    
+    Returns:
+    dict: The response from the API containing the updated note's details
+    """
+    
+    # API endpoint for creating/updating a note
+    url = "https://reflect.app/api/v1/notes"
+    
+    # Headers for the request
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    # Get the current date for the daily note title
+    today = datetime.now().strftime("%Y-%m-%d")
+    title = f"Daily Note {today}"
+    
+    # Payload for updating the daily note
+    payload = {
+        "title": title,
+        "content": content,
+        "append": True  # This flag tells Reflect to append the content
+    }
+    
+    try:
+        # Send POST request to update the daily note
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        
+        # Check if the request was successful
+        response.raise_for_status()
+        
+        # Return the updated note's details
         return response.json()
     
     except requests.exceptions.RequestException as e:
